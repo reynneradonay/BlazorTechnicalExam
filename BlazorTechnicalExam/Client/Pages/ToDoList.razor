@@ -10,27 +10,109 @@
 }
 else
 {
-    <ul class="list-group">
-        @foreach (var toDo in ToDos)
-        {
-            <li class="list-group-item">
-                <input type="radio" class="form-check-input" id="@toDo.Id" name="toDoComplete" />
-                @toDo.Title
-                <span class="badge rounded-pill @(GetBadgeStyle(toDo.Status))">@toDo.Status</span>
-                <button class="btn btn-danger float-end" onclick="@(() => DeleteToDo(toDo.Id))">
-                    <i class="oi oi-trash"></i>
-                </button>
-                <button class="btn btn-secondary float-end" onclick="@(() => EditToDo())">
-                    <i class="oi oi-pencil"></i>
-                </button>
-            </li>
-        }
-        <li class="list-group-item">
-            <EditForm Model="ToDo" OnValidSubmit="AddToDo" class="form-check-inline">
-                <DataAnnotationsValidator />
-                <InputText @bind-Value="ToDo.Title" id="toDoItem" placeholder="New to-do"></InputText>
-                <button type="submit" class="btn btn-primary">Add</button>
-            </EditForm>
-        </li>
-    </ul>
+    <div class="row g-3">
+        <div class="col-md">
+            <button class="btn btn-outline-primary h-100 w-100" @onclick="AddToDo">
+                <span class="oi oi-plus" aria-hidden="true"></span>
+                Add a to-do
+            </button>
+        </div>
+        <div class="col-md">
+            <div class="form-floating">
+                <select class="form-select" id="floatingSelectGridSort" aria-label="Sort to-do tasks" @onchange="SetSortFilter">
+                    <option selected value="">-Choose sort order-</option>
+                    <option value="Title">To-do Name</option>
+                    <option value="DueDate">Due Date</option>
+                </select>
+                <label for="floatingSelectGridSort">Sort by</label>
+            </div>
+        </div>        
+        <div class="col-md">
+            <div class="form-floating">
+                <select class="form-select" id="floatingSelectGridFilter" aria-label="Filter to-do status" @onchange="SetFilter">
+                    <option selected value="">-Status-</option>
+                    @foreach (var status in Enum.GetValues(typeof(ToDoStatus)))
+                    {
+                        <option value="@status">@status</option>
+                    }
+                </select>
+                <label for="floatingSelectGridFilter">Filter by</label>
+            </div>
+        </div>
+        <div class="col-md">
+            <div class="form-floating">
+                <select class="form-select" id="floatingSelectGridGroup" aria-label="Group to-do tasks" @onchange="SetGroupBy">
+                    <option selected value="">-Choose grouping-</option>
+                    <option value="Category">Category</option>
+                    <option value="Status">Status</option>
+                    @*<option value="2">Due Date</option>*@
+                </select>
+                <label for="floatingSelectGridGroup">Group by</label>
+            </div>
+        </div>
+    </div>
+    <p />
+    @if (ToDos.Any() && string.IsNullOrEmpty(GroupBy))
+    {
+        <ToDoListComponent @ref=ToDoListComponent Items="ToDos" GetFilterableText=@(item => $"{item.Status}")
+                   Filter="@Filter" SortFilter="@SortFilter" SortAction="@SortAction" GroupBy="@GroupBy">
+            <ItemList>
+                <li @key="context.Id" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                    role="button" data-bs-toggle="modal" data-bs-target="#toDoModal" onclick="@(() => EditToDo(context))">
+                    <div class="align-items-center" role="button">
+                        <input class="form-check-input me-1" type="checkbox" role="button" value="" aria-label="Mark Status"
+                       @oninput="@((e) => MarkStatus(e, @context))" @onclick:stopPropagation="true" checked="@CheckStatus(context.Status)" />
+                        @context.Title
+                    </div>
+                    <div class="lh-lg">
+                        <span class="align-right badge rounded-pill float-end @(GetBadgeStyle(context.Status))">@context.Status</span>
+                        <p />
+                        <small class="float-end text-primary">@CustomizeDateDisplay(context.DueDate)</small>
+                    </div>
+                </li>
+            </ItemList>
+        </ToDoListComponent>
+    }
+    else if (ToDoGroupedList.Any())
+    {
+        <ol class="list-group">
+            @foreach (var item in ToDoGroupedList)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-start bg-light text-dark">
+                    <div class="ms-2 me-auto w-100">
+                        <div class="fw-bold">
+                            @(GroupBy == "Category" ? item.CategoryGroupKey : item.StatusGroupKey)
+                            <span class="badge bg-primary rounded-pill">@item.Items.Count</span>
+                        </div>
+                        <p />
+                        <ul class="list-group">
+                            @foreach (var toDo in item.Items)
+                            {
+                                <li @key="toDo.Id" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
+                                    role="button" data-bs-toggle="modal" data-bs-target="#toDoModal" onclick="@(() => EditToDo(toDo))">
+                                    <div class="align-items-center" role="button">
+                                        <input class="form-check-input me-1" type="checkbox" role="button" value="" aria-label="Mark Status"
+                               @oninput="@((e) => MarkStatus(e, @toDo))" @onclick:stopPropagation="true" checked="@CheckStatus(toDo.Status)" />
+                                        @toDo.Title
+                                    </div>
+                                    <div class="lh-lg">
+                                        <span class="align-right badge rounded-pill float-end @(GetBadgeStyle(toDo.Status))">@toDo.Status</span>
+                                        <p />
+                                        <small class="float-end text-primary">@CustomizeDateDisplay(toDo.DueDate)</small>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
+                    </div>                    
+                </li>
+            }
+        </ol>
+    }
+    else if (!ToDos.Any() && !ToDoGroupedList.Any())
+    {
+        <div class="alert alert-warning" role="alert">
+            There are no to-do tasks.
+        </div>
+    }
+    <ToDoUpdate @ref=Modal OnUpdated="RefreshList"></ToDoUpdate>
 }

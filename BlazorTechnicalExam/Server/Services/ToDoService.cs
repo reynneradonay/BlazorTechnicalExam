@@ -44,7 +44,7 @@ namespace BlazorTechnicalExam.Server.Services
             dbContext.SaveChanges();
 
             return dbContext.ToDos
-                .Single(toDo => toDo.Id == toDo.Id);
+                .Single(i => i.Id == toDo.Id);
         }
 
         public void DeleteToDo(int toDoId)

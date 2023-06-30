@@ -1,0 +1,10 @@
+﻿@typeparam TItem
+
+<ul class="list-group">
+    @foreach (TItem item in GetFilteredItems())
+    {
+        <CascadingValue Value="item">
+            @ItemList(item)
+        </CascadingValue>
+    }
+</ul>

@@ -4,6 +4,12 @@ namespace BlazorTechnicalExam.Shared.Models
 {
     public class ToDo
     {
+        public ToDo()
+        {
+            Status = ToDoStatus.New;
+            DueDate = DateTime.Now;
+        }
+
         [Key]
         public int Id { get; set; }
 

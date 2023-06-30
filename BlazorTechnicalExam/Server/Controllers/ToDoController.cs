@@ -1,6 +1,7 @@
 ﻿using BlazorTechnicalExam.Server.Interfaces;
 using BlazorTechnicalExam.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
+using System.Reflection.PortableExecutable;
 
 namespace BlazorTechnicalExam.Server.Controllers
 {
@@ -20,6 +21,19 @@ namespace BlazorTechnicalExam.Server.Controllers
         {
             return _toDoService.GetToDoList()
                 .ToArray();
+        }
+
+        [HttpGet("{id}")]
+        public ActionResult<ToDo> GetById(int id)
+        {
+            var toDo = _toDoService.GetToDoById(id);
+
+            if (toDo == null)
+            {
+                return NotFound();
+            }
+
+            return toDo;
         }
 
         [HttpPost]

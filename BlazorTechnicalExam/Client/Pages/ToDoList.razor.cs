@@ -1,8 +1,10 @@
-﻿using BlazorTechnicalExam.Client.Shared.Services;
+﻿using BlazorTechnicalExam.Client.Components;
+using BlazorTechnicalExam.Client.Shared.Services;
 using BlazorTechnicalExam.Shared.Models;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
 using System.Reflection.PortableExecutable;
+using System.Text.RegularExpressions;
 
 namespace BlazorTechnicalExam.Client.Pages
 {
@@ -11,7 +13,8 @@ namespace BlazorTechnicalExam.Client.Pages
         public ToDoList()
         {
             ToDo = new ToDo();
-            IsEditing = false;
+            Modal = new ToDoUpdate();
+            ToDoGroupedList = new List<ToDoGrouped>();
         }
 
         public ToDo[] ToDos { get; set; }
@@ -19,14 +22,46 @@ namespace BlazorTechnicalExam.Client.Pages
         [Parameter]
         public ToDo ToDo { get; set; }
 
-        [Parameter]
-        public ToDo ToDoSelected { get; set; }
+        public List<ToDoGrouped> ToDoGroupedList { get; set; }
 
-        private bool IsEditing { get; set; }
+        private ToDoUpdate Modal { get; set; }
+
+        public ToDoListComponent<ToDo> ToDoListComponent { get; set; }
+
+        public string Filter { get; set; } = "";
+
+        public string SortFilter { get; set; } = "";
+
+        public string SortAction { get; set; } = "";
+
+        public string GroupBy { get; set; } = null;
 
         private async Task GetToDos()
         {
             ToDos = await Http.GetFromJsonAsync<ToDo[]>("api/todo");
+        }
+
+        private void FillToDoGroupedList()
+        {
+            var groupedList = new List<ToDoGrouped>();
+
+            if (ToDos.Any())
+            {
+                if (GroupBy == "Category")
+                {
+                    groupedList = ToDos.GroupBy(item => item.Category)
+                        .Select(group => new ToDoGrouped { CategoryGroupKey = group.Key, Items = group.ToList() })
+                        .ToList();
+                }
+                if (GroupBy == "Status")
+                {
+                    groupedList = ToDos.GroupBy(item => item.Status)
+                        .Select(group => new ToDoGrouped { StatusGroupKey = group.Key, Items = group.ToList() })
+                        .ToList();
+                }
+            }
+
+            ToDoGroupedList = groupedList;
         }
 
         protected override async Task OnInitializedAsync()
@@ -34,36 +69,120 @@ namespace BlazorTechnicalExam.Client.Pages
             await GetToDos();
         }
 
-        protected async Task AddToDo()
+        protected async Task MarkStatus(ChangeEventArgs e, ToDo toDo)
         {
-            var response = await Http.PostAsJsonAsync("api/todo", ToDo);
-            await response.Content.ReadFromJsonAsync<ToDo>();
-            await Toaster.ShowToaster(ToasterType.Success, "Task added.");
-            await GetToDos();
+            if ((bool)e.Value)
+            {
+                await MarkCompleted(toDo);
+            }
+            else
+            {
+                await MarkActive(toDo);
+            }
+
+            if (!string.IsNullOrEmpty(GroupBy))
+            {
+                FillToDoGroupedList();
+            }
+        }
+
+        protected async Task MarkCompleted(ToDo toDo)
+        {
+            toDo.Status = ToDoStatus.Completed;
+            await Http.PutAsJsonAsync($"api/todo", toDo);
             StateHasChanged();
         }
 
-        protected async Task UpdateToDo()
+        protected async Task MarkActive(ToDo toDo)
         {
-            await Http.PutAsJsonAsync($"api/todo", ToDoSelected);
-            await Toaster.ShowToaster(ToasterType.Success, "Task updated.");
+            toDo.Status = ToDoStatus.Active;
+            await Http.PutAsJsonAsync($"api/todo", toDo);
             StateHasChanged();
         }
 
-        protected async Task DeleteToDo(int id)
+        private void AddToDo()
         {
-            await Http.DeleteAsync($"api/todo/{id}");
-            await Toaster.ShowToaster(ToasterType.Error, "Task deleted.");
-            await GetToDos();
+            Modal.ToDoSelected = new ToDo();
+            Modal.OpenModal();
+        }
+
+        private void EditToDo(ToDo toDo)
+        {
+            Modal.ToDoSelected = toDo;
+            Modal.OpenModal();
+        }
+
+        public async Task RefreshList()
+        {
+            await InvokeAsync(GetToDos);
+            await InvokeAsync(FillToDoGroupedList);
+        }
+
+        public void SetFilter(ChangeEventArgs e)
+        {
+            Filter = e.Value.ToString();
+            GroupBy = null;
+            ToDoListComponent.Refresh();
+        }
+
+        public void SetSortFilter(ChangeEventArgs e)
+        {
+            SortFilter = e.Value.ToString();
+            GroupBy = null;
+            ToDoListComponent.Refresh();
+        }
+
+        public void SetGroupBy(ChangeEventArgs e)
+        {
+            GroupBy = e.Value.ToString();
+
+            FillToDoGroupedList();
+
             StateHasChanged();
         }
 
-        private void EditToDo()
+        public bool CheckStatus(ToDoStatus status)
         {
-            IsEditing = true;
+            if (status == ToDoStatus.Completed)
+                return true;
+
+            return false;
         }
 
-        private string GetBadgeStyle(ToDoStatus status)
+        /// <summary>
+        /// Convert value of date to elapsed days if not more than or passed 30 days, otherwise display the date.
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        /// TODO: Logic not yet accurate based on hours difference.
+        public string CustomizeDateDisplay(DateTime date)
+        {
+            TimeSpan difference = DateTime.Now - date;
+            int elapsedDays = difference.Days;
+
+            if (elapsedDays > 0 && elapsedDays <= 30)
+            {
+                if (elapsedDays == 1)
+                    return $"{elapsedDays} day ago";
+
+                return $"{elapsedDays} days ago";
+            }
+            else if (elapsedDays == 0)
+            {
+                return "Today";
+            }
+            else if (elapsedDays < 0 && elapsedDays >= -30)
+            {
+                if (elapsedDays == -1)
+                    return $"{~elapsedDays + 1} day from now";
+
+                return $"{~elapsedDays + 1} days from now";
+            }
+
+            return date.ToLongDateString();
+        }
+
+        public string GetBadgeStyle(ToDoStatus status)
         {
             string style = status switch
             {
@@ -75,5 +194,16 @@ namespace BlazorTechnicalExam.Client.Pages
             };
             return style;
         }
+    }
+
+    public class ToDoGrouped
+    {
+        public ToDoGrouped() { }
+
+        public ToDoStatus StatusGroupKey { get; set; }
+
+        public ToDoCategory CategoryGroupKey { get; set; }
+
+        public List<ToDo> Items { get; set; }
     }
 }
