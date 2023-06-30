@@ -1,0 +1,36 @@
+﻿@page "/todo"
+@inject HttpClient Http
+@inject Toaster Toaster
+
+<h3>To Do List</h3>
+
+@if (ToDos == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <ul class="list-group">
+        @foreach (var toDo in ToDos)
+        {
+            <li class="list-group-item">
+                <input type="radio" class="form-check-input" id="@toDo.Id" name="toDoComplete" />
+                @toDo.Title
+                <span class="badge rounded-pill @(GetBadgeStyle(toDo.Status))">@toDo.Status</span>
+                <button class="btn btn-danger float-end" onclick="@(() => DeleteToDo(toDo.Id))">
+                    <i class="oi oi-trash"></i>
+                </button>
+                <button class="btn btn-secondary float-end" onclick="@(() => EditToDo())">
+                    <i class="oi oi-pencil"></i>
+                </button>
+            </li>
+        }
+        <li class="list-group-item">
+            <EditForm Model="ToDo" OnValidSubmit="AddToDo" class="form-check-inline">
+                <DataAnnotationsValidator />
+                <InputText @bind-Value="ToDo.Title" id="toDoItem" placeholder="New to-do"></InputText>
+                <button type="submit" class="btn btn-primary">Add</button>
+            </EditForm>
+        </li>
+    </ul>
+}
