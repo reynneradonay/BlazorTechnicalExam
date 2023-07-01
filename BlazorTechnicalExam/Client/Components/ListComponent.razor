@@ -1,0 +1,8 @@
+﻿@typeparam TItem
+
+@foreach (TItem item in GetFilteredItems())
+{
+    <CascadingValue Value="item">
+        @ItemList(item)
+    </CascadingValue>
+}

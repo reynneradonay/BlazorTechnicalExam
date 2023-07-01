@@ -23,7 +23,7 @@ namespace BlazorTechnicalExam.Client.Pages
 
         private ToDoUpdate Modal { get; set; }
 
-        public ToDoListComponent<ToDo> ToDoListComponent { get; set; }
+        public ListComponent<ToDo> ToDoListComponent { get; set; }
 
         public string Filter { get; set; } = "";
 
@@ -111,6 +111,9 @@ namespace BlazorTechnicalExam.Client.Pages
 
         public async Task RefreshList()
         {
+            Filter = "";
+            SortFilter = "";
+            GroupBy = null;
             await InvokeAsync(GetToDos);
             await InvokeAsync(FillToDoGroupedList);
         }
@@ -132,9 +135,9 @@ namespace BlazorTechnicalExam.Client.Pages
         public void SetGroupBy(ChangeEventArgs e)
         {
             GroupBy = e.Value.ToString();
-
+            Filter = "";
+            SortFilter = "";
             FillToDoGroupedList();
-
             StateHasChanged();
         }
 

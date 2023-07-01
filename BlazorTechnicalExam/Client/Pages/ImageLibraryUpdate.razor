@@ -10,16 +10,30 @@
             <div class="modal-body">
                 <EditForm Model="ImageLibrarySelected" OnValidSubmit="UpdateImageLibrary">
                     <DataAnnotationsValidator />
+                    <div class="row mb-3 @ErrorMessageClass">
+                        @ErrorMessage
+                    </div>
+                    @if (ImageLibrarySelected.Id > 0)
+                    {
+                        <div class="row mb-3">
+                            <label for="imageLibraryFileName" class="col-sm-2 col-form-label">Name</label>
+                            <div class="col-sm-10">
+                                <label>@ImageLibrarySelected.FileName</label>
+                            </div>
+                        </div>
+                    }
                     <div class="row mb-3">
                         <label for="imageLibraryFile" class="col-sm-2 col-form-label">Image</label>
                         <div class="col-sm-10">
-                            <InputFile @bind-Value="ImageLibrarySelected.FileName" OnChange="OnFileSelected" class="form-control" type="file" id="imageLibraryFile"></InputFile>
+                            <InputFile @bind-Value="ImageLibrarySelected.FileName" OnChange="OnFileSelected" class="form-control"
+                                       type="file" id="imageLibraryFile" accept=".png, .jpg"></InputFile>
                         </div>
                     </div>
                     <div class="row mb-3">
                         <label for="imageLibraryTitle" class="col-sm-2 col-form-label">Title</label>
                         <div class="col-sm-10">
                             <InputText @bind-Value="ImageLibrarySelected.Title" id="imageLibraryTitle" placeholder="Title" class="form-control"></InputText>
+                            <ValidationMessage For="@(() => @ImageLibrarySelected.Title)" />
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -45,7 +59,7 @@
                             <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick="DeleteImageLibrary">Delete</button>
                             <span></span>
                         }
-                        <button type="button" class="btn btn-primary" @onclick="UpdateImageLibrary">Save Changes</button>
+                        <button type="button" class="btn btn-primary" @onclick="UpdateImageLibrary" disabled="@IsFormInvalid">Save Changes</button>
                     </div>
                 </EditForm>
             </div>

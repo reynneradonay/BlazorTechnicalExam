@@ -18,23 +18,101 @@ else
                 New Image
             </button>
         </div>
+        <div class="col-md">
+            <div class="form-floating">
+                <select class="form-select" id="floatingSelectGridGroup" aria-label="Group to-do tasks" value="@GroupBy" @onchange="SetGroupBy">
+                    <option selected value="">-Choose grouping-</option>
+                    <option value="Category">Category</option>
+                </select>
+                <label for="floatingSelectGridGroup">Group by</label>
+            </div>
+        </div>
+        <div class="col-md input-group">
+            <div class="input-group mb-3 h-100">
+                <input type="text" class="form-control" placeholder="Search text" aria-label="Search" aria-describedby="btnSearch" @bind-value="Filter">
+                <button class="btn btn-primary" type="submit" id="btnSearch" @onclick="Search">
+                    <span class="oi oi-magnifying-glass" aria-hidden="true"></span>
+                    Search
+                </button>
+                <button class="btn btn-secondary" type="submit" id="btnClear" @onclick="ClearSearch">
+                    <span class="oi oi-ban" aria-hidden="true"></span>
+                    Clear
+                </button>
+            </div>
+        </div>
     </div>
     <p />
-    <Virtualize Items="@ImageLibraries" Context="image">
-        <ItemContent>
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-4 mt-3 col-lg-2">
-                        <img src="@image.ImageFullPath" class="img-fluid" alt="image">
-                    </div>
+    @if (ImageLibraries.Any() && string.IsNullOrEmpty(GroupBy))
+    {
+        @if (SearchClicked)
+        {
+            <div class="row g-3">
+                <div class="col-md alert alert-info" role="alert">
+                    @FilterCount result(s) found.
                 </div>
             </div>
-        </ItemContent>
-        <Placeholder>
-            <div class="alert alert-warning" role="alert">
-                Loading images...
-            </div>
-        </Placeholder>
-    </Virtualize>
+        }
+        <div class="row row-cols-1 row-cols-md-5 g-4">
+            <ListComponent @ref=ImageLibraryListComponent Items="ImageLibraries" GetFilterableText=@(item => $"{item.Title}, {item.Category}, {item.Description}")
+                   SortAction="@SortAction" Filter="@Filter" GroupBy="@GroupBy">
+                <ItemList>
+                    <div @key="context.Id" class="col" role="button" @onclick="@(() => EditImageLibrary(context))">
+                        <div class="card h-100">
+                            <img src="@context.ImageFullPath" class="card-img-top" alt="@context.Title">
+                            <div class="card-body">
+                                <h5 class="card-title">@context.Title</h5>
+                                <p class="card-text">@context.Description</p>
+                            </div>
+                            <div class="card-footer">
+                                <small class="text-muted">@GetCategory(context.Category)</small>
+                            </div>
+                        </div>
+                    </div>
+                </ItemList>
+            </ListComponent>
+        </div>
+    }
+    else if (ImageLibraryGroupedList.Any())
+    {
+        <ol class="list-group">
+            @foreach (var item in ImageLibraryGroupedList)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-start bg-light text-dark">
+                    <div class="ms-2 me-auto w-100">
+                        <div class="fw-bold">
+                            @item.CategoryGroupKey
+                            <span class="badge bg-primary rounded-pill">@item.Items.Count</span>
+                        </div>
+                        <p />
+                        <ul class="list-group">
+                            <div class="row row-cols-1 row-cols-md-5 g-4">
+                                @foreach (var image in item.Items)
+                                {
+                                    <div class="col" role="button" @onclick="@(() => EditImageLibrary(image))">
+                                        <div class="card h-100">
+                                            <img src="@image.ImageFullPath" class="card-img-top" alt="@image.Title">
+                                            <div class="card-body">
+                                                <h5 class="card-title">@image.Title</h5>
+                                                <p class="card-text">@image.Description</p>
+                                            </div>
+                                            <div class="card-footer">
+                                                <small class="text-muted">@GetCategory(image.Category)</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </ul>
+                    </div>
+                </li>
+            }
+        </ol>
+    }
+    else
+    {
+        <div class="alert alert-warning" role="alert">
+            There are no images in the library.
+        </div>
+    }
 }
 <ImageLibraryUpdate @ref=Modal OnUpdated="RefreshList"></ImageLibraryUpdate>

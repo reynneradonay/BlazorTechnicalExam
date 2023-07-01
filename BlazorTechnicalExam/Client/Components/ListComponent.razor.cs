@@ -5,9 +5,9 @@ using System.Reflection.Metadata;
 
 namespace BlazorTechnicalExam.Client.Components
 {
-    public partial class ToDoListComponent<TItem> : ComponentBase
+    public partial class ListComponent<TItem> : ComponentBase
     {
-        public ToDoListComponent() { }
+        public ListComponent() { }
 
         public DataSourceResult<TItem> DataSource { get; set; }
 
@@ -32,6 +32,8 @@ namespace BlazorTechnicalExam.Client.Components
         [Parameter]
         public string GroupBy { get; set; }
 
+        public IEnumerable<TItem> FilteredItems { get; set; }
+
         private static readonly Func<TItem, string> DefaultGetFilterableText =
             item => (item?.ToString() ?? "");
 
@@ -40,7 +42,12 @@ namespace BlazorTechnicalExam.Client.Components
             StateHasChanged();
         }
 
-        private IEnumerable<TItem> GetFilteredItems()
+        public void SetFilter(string _filter)
+        {
+            Filter = _filter;
+        }
+
+        public IEnumerable<TItem> GetFilteredItems()
         {
             Func<TItem, string> filterFunc = GetFilterableText ?? DefaultGetFilterableText;
             IEnumerable<TItem> result = (Items ?? Array.Empty<TItem>());
@@ -57,6 +64,7 @@ namespace BlazorTechnicalExam.Client.Components
                     .AsQueryable()
                     .OrderBy($"{SortFilter} {SortAction}");
             }
+            FilteredItems = result;
             return result;
         }
     }

@@ -1,7 +1,6 @@
 ﻿using BlazorTechnicalExam.Server.Interfaces;
 using BlazorTechnicalExam.Shared.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Reflection.PortableExecutable;
 
 namespace BlazorTechnicalExam.Server.Controllers
 {
