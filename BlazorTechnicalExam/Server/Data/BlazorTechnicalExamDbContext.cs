@@ -7,6 +7,8 @@ namespace BlazorTechnicalExam.Server.Data
     {
         public DbSet<ToDo> ToDos { get; set; }
 
+        public DbSet<ImageLibrary> ImageLibraries { get; set; }
+
         public BlazorTechnicalExamDbContext(DbContextOptions<BlazorTechnicalExamDbContext> options) : base(options)
         {
             
@@ -15,6 +17,7 @@ namespace BlazorTechnicalExam.Server.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ToDo>(toDo => { toDo.Property(p => p.Id).ValueGeneratedOnAdd(); });
+            modelBuilder.Entity<ImageLibrary>(imageLibrary => { imageLibrary.Property(p => p.Id).ValueGeneratedOnAdd(); });
             base.OnModelCreating(modelBuilder);
         }
     }

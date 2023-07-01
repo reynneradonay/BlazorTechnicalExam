@@ -1,6 +1,5 @@
 ﻿@page "/todo"
 @inject HttpClient Http
-@inject Toaster Toaster
 
 <h3>To Do List</h3>
 
@@ -108,7 +107,7 @@ else
             }
         </ol>
     }
-    else if (!ToDos.Any() && !ToDoGroupedList.Any())
+    else
     {
         <div class="alert alert-warning" role="alert">
             There are no to-do tasks.

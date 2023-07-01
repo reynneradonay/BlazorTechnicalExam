@@ -1,0 +1,58 @@
+﻿@inject HttpClient Http
+
+<div class="modal @ModalClass" style="display:@ModalDisplay" id="imageLibraryModal" tabindex="-1" aria-labelledby="imageLibraryModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageLibraryModalLabel">@ModalTitle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" @onclick="() => CloseModal()"></button>
+            </div>
+            <div class="modal-body">
+                <EditForm Model="ImageLibrarySelected" OnValidSubmit="UpdateImageLibrary">
+                    <DataAnnotationsValidator />
+                    <div class="row mb-3">
+                        <label for="imageLibraryFile" class="col-sm-2 col-form-label">Image</label>
+                        <div class="col-sm-10">
+                            <InputFile @bind-Value="ImageLibrarySelected.FileName" OnChange="OnFileSelected" class="form-control" type="file" id="imageLibraryFile"></InputFile>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="imageLibraryTitle" class="col-sm-2 col-form-label">Title</label>
+                        <div class="col-sm-10">
+                            <InputText @bind-Value="ImageLibrarySelected.Title" id="imageLibraryTitle" placeholder="Title" class="form-control"></InputText>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="imageLibraryCategory" class="col-sm-2 col-form-label">Category</label>
+                        <div class="col-sm-10">
+                            <InputSelect @bind-Value="@ImageLibrarySelected.Category" class="form-select" id="imageLibraryCategory">
+                                @foreach (ImageLibraryCategory category in Enum.GetValues(typeof(ImageLibraryCategory)))
+                                {
+                                    <option value="@GetCategory(category)">@GetCategory(category)</option>
+                                }
+                            </InputSelect>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <label for="imageLibraryDescription" class="col-sm-2 col-form-label">Description</label>
+                        <div class="col-sm-10">
+                            <InputTextArea @bind-Value="ImageLibrarySelected.Description" id="imageLibraryDescription" placeholder="Description" class="form-control"></InputTextArea>
+                        </div>
+                    </div>
+                    <div class="text-end button-control">
+                        @if (ImageLibrarySelected.Id > 0)
+                        {
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick="DeleteImageLibrary">Delete</button>
+                            <span></span>
+                        }
+                        <button type="button" class="btn btn-primary" @onclick="UpdateImageLibrary">Save Changes</button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+@if (ShowBackdrop)
+{
+    <div class="modal-backdrop fade show"></div>
+}

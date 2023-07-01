@@ -1,0 +1,40 @@
+﻿@page "/imagelibrary"
+@inject HttpClient Http
+
+<h3>Image Library</h3>
+
+@if (ImageLibraries == null)
+{
+    <div class="alert alert-warning" role="alert">
+        Loading images...
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        <div class="col-md">
+            <button class="btn btn-outline-primary h-100 w-100" @onclick="AddImageLibrary">
+                <span class="oi oi-plus" aria-hidden="true"></span>
+                New Image
+            </button>
+        </div>
+    </div>
+    <p />
+    <Virtualize Items="@ImageLibraries" Context="image">
+        <ItemContent>
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 mt-3 col-lg-2">
+                        <img src="@image.ImageFullPath" class="img-fluid" alt="image">
+                    </div>
+                </div>
+            </div>
+        </ItemContent>
+        <Placeholder>
+            <div class="alert alert-warning" role="alert">
+                Loading images...
+            </div>
+        </Placeholder>
+    </Virtualize>
+}
+<ImageLibraryUpdate @ref=Modal OnUpdated="RefreshList"></ImageLibraryUpdate>

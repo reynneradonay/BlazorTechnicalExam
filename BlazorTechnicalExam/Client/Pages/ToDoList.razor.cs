@@ -1,10 +1,7 @@
 ﻿using BlazorTechnicalExam.Client.Components;
-using BlazorTechnicalExam.Client.Shared.Services;
 using BlazorTechnicalExam.Shared.Models;
 using Microsoft.AspNetCore.Components;
 using System.Net.Http.Json;
-using System.Reflection.PortableExecutable;
-using System.Text.RegularExpressions;
 
 namespace BlazorTechnicalExam.Client.Pages
 {

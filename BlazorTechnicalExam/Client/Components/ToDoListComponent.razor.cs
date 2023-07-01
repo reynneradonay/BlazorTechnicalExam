@@ -1,9 +1,7 @@
 ﻿using BlazorTechnicalExam.Shared.Data;
 using Microsoft.AspNetCore.Components;
-using System.Reflection.Metadata;
 using System.Linq.Dynamic.Core;
-using System.Linq;
-using BlazorTechnicalExam.Shared.Extensions;
+using System.Reflection.Metadata;
 
 namespace BlazorTechnicalExam.Client.Components
 {

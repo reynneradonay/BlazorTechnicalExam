@@ -14,6 +14,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddDbContext<BlazorTechnicalExamDbContext>(opt =>
     opt.UseInMemoryDatabase("BlazorTechnicalExam"));
 builder.Services.AddScoped<IToDoService, ToDoService>();
+builder.Services.AddScoped<IImageLibraryService, ImageLibraryService>();
 
 var app = builder.Build();
 

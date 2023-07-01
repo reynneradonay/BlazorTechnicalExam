@@ -1,11 +1,7 @@
-﻿using BlazorTechnicalExam.Client.Shared.Services;
-using BlazorTechnicalExam.Shared.Extensions;
+﻿using BlazorTechnicalExam.Shared.Extensions;
 using BlazorTechnicalExam.Shared.Models;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Forms;
 using System.Net.Http.Json;
-using System.Reflection.PortableExecutable;
-using static System.Net.WebRequestMethods;
 
 namespace BlazorTechnicalExam.Client.Pages
 {
