@@ -3,10 +3,40 @@
 <header class="header js-header" role="banner" data-stickify-me="true">
     <div class="header-main-wrapper">
         <div class="page-wrapper">
-            <div class="header-main js-header-main">
-                <a class="header__logo"></a>
-                <div class="header-nav-wrapper js-header-nav-wrapper">
-                    <SchiavelloNavMenu />
+            <div class="header-main js-header-main @ActiveMenu">
+                <button class="header__nav-toggler js-header__nav-toggler @ActiveMenu" @onclick="ToggleNavMenu">
+                    <span class="visuallyhidden">nav toggler</span>
+                </button>
+                <a href="" class="header__logo">
+                    <img class="header__logo-img" src="https://www.schiavello.com/__data/assets/image/0016/592/schiavello-logo.png" alt="schiavello logo">
+                </a>
+                <div class="header-nav-wrapper js-header-nav-wrapper @ExpandedMenu">
+                    <ul class="header__nav">
+                        <li class="header__nav-item">
+                            <div class="header__nav-link-wrapper">
+                                <a href="counter" class="header__nav-link" @onclick="ToggleNavMenu">Counter</a>
+                                <span class="header__nav-arrow js-header__nav-arrow">
+                                    <span class="visuallyhidden">accordion expanded</span>
+                                </span>
+                            </div>
+                        </li>
+                        <li class="header__nav-item ">
+                            <div class="header__nav-link-wrapper">
+                                <a href="todo" class="header__nav-link" @onclick="ToggleNavMenu">Todo List</a>
+                                <span class="header__nav-arrow js-header__nav-arrow">
+                                    <span class="visuallyhidden">accordion expanded</span>
+                                </span>
+                            </div>
+                        </li>
+                        <li class="header__nav-item ">
+                            <div class="header__nav-link-wrapper">
+                                <a href="imagelibrary" class="header__nav-link" @onclick="ToggleNavMenu">Image Library</a>
+                                <span class="header__nav-arrow js-header__nav-arrow">
+                                    <span class="visuallyhidden">accordion expanded</span>
+                                </span>
+                            </div>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -15,3 +45,16 @@
 <article class="content px-4">
     @Body
 </article>
+
+@code {
+    private bool collapseNavMenu = false;
+
+    private string? ActiveMenu => collapseNavMenu ? "Active" : null;
+
+    private string? ExpandedMenu => collapseNavMenu ? "header-nav-wrapper--expanded" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}

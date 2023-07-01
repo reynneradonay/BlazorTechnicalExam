@@ -111,9 +111,9 @@ namespace BlazorTechnicalExam.Client.Pages
 
         public async Task RefreshList()
         {
-            Filter = "";
-            SortFilter = "";
-            GroupBy = null;
+            //Filter = "";
+            //SortFilter = "";
+            //GroupBy = null;
             await InvokeAsync(GetToDos);
             await InvokeAsync(FillToDoGroupedList);
         }
