@@ -23,6 +23,10 @@ namespace BlazorTechnicalExam.Client.Pages
 
         public bool ShowBackdrop { get; set; } = false;
 
+        public MarkupString ErrorMessage { get; set; }
+
+        public string ErrorMessageClass { get; set; }
+
         [Parameter]
         public EventCallback OnUpdated { get; set; }
 
@@ -33,13 +37,21 @@ namespace BlazorTechnicalExam.Client.Pages
 
         protected async Task UpdateToDo()
         {
-            if (ToDoSelected.Id == 0)
+            if (string.IsNullOrWhiteSpace(ToDoSelected.Title))
             {
-                await Http.PostAsJsonAsync("api/todo", ToDoSelected);
+                SetErrorMessage("alert alert-danger", $"Title is required.");
+                return;
             }
             else
             {
-                await Http.PutAsJsonAsync($"api/todo", ToDoSelected);
+                if (ToDoSelected.Id == 0)
+                {
+                    await Http.PostAsJsonAsync("api/todo", ToDoSelected);
+                }
+                else
+                {
+                    await Http.PutAsJsonAsync($"api/todo", ToDoSelected);
+                }
             }
 
             CloseModal();
@@ -59,6 +71,7 @@ namespace BlazorTechnicalExam.Client.Pages
             ModalDisplay = "block;";
             ModalClass = "Show";
             ShowBackdrop = true;
+            ClearErrorMessage();
             StateHasChanged();
         }
 
@@ -68,6 +81,18 @@ namespace BlazorTechnicalExam.Client.Pages
             ModalClass = "";
             ShowBackdrop = false;
             StateHasChanged();
+        }
+
+        private void SetErrorMessage(string alertClass, string message)
+        {
+            ErrorMessageClass = alertClass;
+            ErrorMessage = new MarkupString($"{message}");
+        }
+
+        private void ClearErrorMessage()
+        {
+            ErrorMessageClass = "";
+            ErrorMessage = new MarkupString("");
         }
 
         protected string GetStatus(ToDoStatus status)

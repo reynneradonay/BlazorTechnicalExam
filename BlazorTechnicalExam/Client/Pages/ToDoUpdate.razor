@@ -10,6 +10,9 @@
             <div class="modal-body">
                 <EditForm Model="ToDoSelected" OnValidSubmit="UpdateToDo">
                     <DataAnnotationsValidator />
+                    <div class="row mb-3 @ErrorMessageClass">
+                        @ErrorMessage
+                    </div>
                     <div class="row mb-3">
                         <label for="@ToDoSelected.Title" class="col-sm-2 col-form-label">To Do</label>
                         <div class="col-sm-10">
